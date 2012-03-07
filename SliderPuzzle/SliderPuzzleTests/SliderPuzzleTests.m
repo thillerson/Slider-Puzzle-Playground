@@ -3,7 +3,7 @@
 //  SliderPuzzleTests
 //
 //  Created by Tony Hillerson on 3/6/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Tack Mobile, LLC. All rights reserved.
 //
 
 #import "SliderPuzzleTests.h"
