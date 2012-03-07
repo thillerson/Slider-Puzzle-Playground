@@ -11,5 +11,7 @@
 @interface ViewController : UIViewController
 
 @property(strong, nonatomic) UIView *draggable;
+@property (strong, nonatomic) IBOutlet UISwitch *xLock;
+@property (strong, nonatomic) IBOutlet UISwitch *yLock;
 
 @end

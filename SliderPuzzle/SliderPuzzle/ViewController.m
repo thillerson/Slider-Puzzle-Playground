@@ -10,6 +10,8 @@
 
 @implementation ViewController
 @synthesize draggable;
+@synthesize xLock;
+@synthesize yLock;
 
 #pragma mark - View lifecycle
 
@@ -30,10 +32,19 @@
         }
         return NO;
     }] anyObject];
-    if (touch) self.draggable.center = [touch locationInView:self.view];
+    CGPoint newLocation = self.draggable.center;
+    if (![self.xLock isOn]) {
+        newLocation.y = [touch locationInView:self.view].y;
+    }
+    if (![self.yLock isOn]) {
+        newLocation.x = [touch locationInView:self.view].x;
+    }
+    if (touch) self.draggable.center = newLocation;
 }
 
 - (void)viewDidUnload {
+    [self setXLock:nil];
+    [self setYLock:nil];
     [super viewDidUnload];
 }
 
