@@ -3,58 +3,42 @@
 //  SliderPuzzle
 //
 //  Created by Tony Hillerson on 3/6/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Tack Mobile, LLC. All rights reserved.
 //
 
 #import "ViewController.h"
 
 @implementation ViewController
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
+@synthesize draggable;
 
 #pragma mark - View lifecycle
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    self.draggable = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    self.draggable.backgroundColor = [UIColor blueColor];
+    [self.view addSubview:self.draggable];
+    self.draggable.center = self.view.center;
 }
 
-- (void)viewDidUnload
-{
+- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = (UITouch *)[[touches objectsPassingTest:^BOOL(UITouch *candidate, BOOL *stop) {
+        if (candidate.view == self.draggable) {
+            BOOL finish = YES;
+            stop = &finish;
+            return YES;
+        }
+        return NO;
+    }] anyObject];
+    if (touch) self.draggable.center = [touch locationInView:self.view];
+}
+
+- (void)viewDidUnload {
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-	[super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-	[super viewDidDisappear:animated];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 @end
