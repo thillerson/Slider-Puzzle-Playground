@@ -11,7 +11,7 @@
 @class GameTile;
 
 @interface ViewController : UIViewController {
-    int x,y;
+    int gameBoardX,gameBoardY;
 }
 
 @property(strong, nonatomic) NSMutableArray *gameGrid;

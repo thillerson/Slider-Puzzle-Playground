@@ -18,6 +18,7 @@
 - (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column;
 - (void) renderTile:(GameTile *)tile;
 - (NSSet *) tilesAdjacentToTile:(GameTile *)tile;
+- (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
 @end
 
 @implementation ViewController
@@ -29,8 +30,8 @@
     [super viewDidLoad];
     int w = kTileSize * 4;
     int h = kTileSize * 4;
-    x = self.view.frame.size.width/2 - w/2;
-    y = self.view.frame.size.height/2 - h/2;
+    gameBoardX = self.view.frame.size.width/2 - w/2;
+    gameBoardY = self.view.frame.size.height/2 - h/2;
 
     self.allTiles = [NSMutableArray arrayWithCapacity:16];
     [self createGameGrid];
@@ -96,7 +97,6 @@
 }
 
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column {
-    NSLog(@"Creating Game Tile at [%d %d]", row, column);
     NSMutableArray *columnArray = nil;
     if ([self.gameGrid count] ==  row) {
         columnArray = [NSMutableArray arrayWithCapacity:4];
@@ -113,7 +113,7 @@
 }
 
 - (void) renderTile:(GameTile *)tile {
-    tile.frame = CGRectMake((tile.row * kTileSize) + x, (tile.column * kTileSize) + y, kTileSize, kTileSize);
+    tile.frame = [self rectForRow:tile.row column:tile.column];
     if (tile.row == 3 && tile.column == 3) {
         self.emptyTile = tile;
         tile.isEmptyTile = YES;
@@ -122,6 +122,12 @@
         tile.layer.cornerRadius = 2;
         [self.view addSubview:tile];
     }
+}
+
+#pragma mark - Positioning
+
+- (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column {
+    return CGRectMake((row * kTileSize) + gameBoardX, (column * kTileSize) + gameBoardY, kTileSize, kTileSize);
 }
 
 #pragma mark - Touches
