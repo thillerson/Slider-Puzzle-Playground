@@ -12,11 +12,24 @@
 @synthesize row, column, isEmptyTile;
 
 - (void) highlight {
-    if (!isEmptyTile) self.backgroundColor = [UIColor redColor];
+    self.backgroundColor = [UIColor redColor];
 }
 
 - (void) normal {
-    if (!isEmptyTile) self.backgroundColor = [UIColor blackColor];
+    self.backgroundColor = (isEmptyTile) ? [UIColor clearColor] : [UIColor blackColor];
+}
+
+- (void) swapCoordinatesWith:(GameTile *)anotherTile {
+    int anotherRow = anotherTile.row;
+    int anotherColumn = anotherTile.column;
+    anotherTile.row = self.row;
+    anotherTile.column = self.column;
+    self.row = anotherRow;
+    self.column = anotherColumn;
+}
+
+- (NSString *) description {
+    return [NSString stringWithFormat:@"<GameTile row:%d column:%d empty? %d>", self.row, self.column, self.isEmptyTile];
 }
 
 @end

@@ -11,6 +11,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define kTileSize 68
+#define kAnimationSpeed 0.4f
 
 @interface ViewController (Private)
 - (void) createGameGrid;
@@ -19,6 +20,8 @@
 - (void) renderTile:(GameTile *)tile;
 - (NSSet *) tilesAdjacentToTile:(GameTile *)tile;
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
+- (void) animateTileToEmptyTile:(GameTile *)tile;
+- (void) swapTileCoordinates:(GameTile *)tile withTile:(GameTile *)anotherTile;
 @end
 
 @implementation ViewController
@@ -80,9 +83,6 @@
     if (row > -1 && column > -1 && row < 4 && column < 4) {
         NSMutableArray *columnArray = [self.gameGrid objectAtIndex:row];
         tile = [columnArray objectAtIndex:column];
-        if (tile == self.emptyTile) {
-            return nil;
-        }
     }
     return tile;
 }
@@ -117,14 +117,40 @@
     if (tile.row == 3 && tile.column == 3) {
         self.emptyTile = tile;
         tile.isEmptyTile = YES;
+        tile.backgroundColor = [UIColor clearColor];
     } else {
         tile.backgroundColor = [UIColor blackColor];
         tile.layer.cornerRadius = 2;
-        [self.view addSubview:tile];
     }
+    [self.view addSubview:tile];
 }
 
 #pragma mark - Positioning
+
+- (void) swapTileCoordinates:(GameTile *)tile withTile:(GameTile *)anotherTile {
+    NSMutableArray *tileRow = [self.gameGrid objectAtIndex:tile.row];
+    NSMutableArray *anotherTileRow = [self.gameGrid objectAtIndex:anotherTile.row];
+    [tile swapCoordinatesWith:anotherTile];
+    [tileRow removeObject:tile];
+    [anotherTileRow removeObject:anotherTile];
+    [tileRow insertObject:anotherTile atIndex:anotherTile.column];
+    [anotherTileRow insertObject:tile atIndex:tile.column];
+}
+
+- (void) animateTileToEmptyTile:(GameTile *)tile {
+    __block GameTile *animatedTile = tile;
+    __block CGRect emptyTileRect = [self rectForRow:self.emptyTile.row column:self.emptyTile.column];
+    [UIView animateWithDuration:kAnimationSpeed
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         animatedTile.frame = emptyTileRect;
+                     }
+                     completion:^(BOOL finished) {
+                         [self swapTileCoordinates:animatedTile withTile:self.emptyTile];
+                         NSLog(@"animatedTile: %@, empty: %@", animatedTile, self.emptyTile);
+                     }];
+}
 
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column {
     return CGRectMake((row * kTileSize) + gameBoardX, (column * kTileSize) + gameBoardY, kTileSize, kTileSize);
@@ -143,7 +169,13 @@
     if (firstTouch) {
         self.targetTile = (GameTile *)firstTouch.view;
         NSSet *adjacentTiles = [self tilesAdjacentToTile:self.targetTile];
+        
+        NSLog(@"Adjacent to empty tile %d", [adjacentTiles containsObject:self.emptyTile]);
+        NSLog(@"tapped: %@, empty: %@", self.targetTile, self.emptyTile);
         [adjacentTiles makeObjectsPerformSelector:@selector(highlight)];
+        if ([adjacentTiles containsObject:self.emptyTile] && (self.targetTile.row == self.emptyTile.row || self.targetTile.column == self.emptyTile.column)) {
+            [self animateTileToEmptyTile:self.targetTile];
+        }
     }
 }
 
