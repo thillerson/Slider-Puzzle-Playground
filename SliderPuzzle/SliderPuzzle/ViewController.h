@@ -8,10 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@class GameTile;
+
 @interface ViewController : UIViewController {
     int x,y;
 }
 
 @property(strong, nonatomic) NSMutableArray *gameGrid;
+@property(strong, nonatomic) NSMutableSet *allTiles;
+@property(strong, nonatomic) GameTile *emptyTile;
+@property(strong, nonatomic) GameTile *targetTile;
 
 @end

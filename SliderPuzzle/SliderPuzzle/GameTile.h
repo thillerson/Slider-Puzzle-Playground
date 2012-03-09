@@ -12,5 +12,9 @@
 
 @property(nonatomic) NSInteger row;
 @property(nonatomic) NSInteger column;
+@property(nonatomic) BOOL isEmptyTile;
+
+- (void) highlight;
+- (void) normal;
 
 @end

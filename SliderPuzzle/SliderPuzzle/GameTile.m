@@ -9,7 +9,14 @@
 #import "GameTile.h"
 
 @implementation GameTile
-@synthesize row, column;
+@synthesize row, column, isEmptyTile;
 
+- (void) highlight {
+    if (!isEmptyTile) self.backgroundColor = [UIColor redColor];
+}
+
+- (void) normal {
+    if (!isEmptyTile) self.backgroundColor = [UIColor blackColor];
+}
 
 @end
