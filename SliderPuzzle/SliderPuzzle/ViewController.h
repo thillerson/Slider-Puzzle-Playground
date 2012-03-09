@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController {
+    int x,y;
+}
 
-@property(strong, nonatomic) UIView *draggable;
-@property (strong, nonatomic) IBOutlet UISwitch *xLock;
-@property (strong, nonatomic) IBOutlet UISwitch *yLock;
+@property(strong, nonatomic) NSMutableArray *gameGrid;
 
 @end
