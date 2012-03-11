@@ -14,7 +14,6 @@
     int gameBoardX,gameBoardY;
 }
 
-@property(strong, nonatomic) NSMutableArray *gameGrid;
 @property(strong, nonatomic) NSMutableSet *allTiles;
 @property(strong, nonatomic) GameTile *emptyTile;
 @property(strong, nonatomic) GameTile *targetTile;

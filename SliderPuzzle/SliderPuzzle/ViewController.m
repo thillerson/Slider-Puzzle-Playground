@@ -11,7 +11,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define kTileSize 68
-#define kAnimationSpeed 0.4f
+#define kAnimationSpeed 0.04f
 
 @interface ViewController (Private)
 - (void) createGameGrid;
@@ -21,11 +21,10 @@
 - (NSSet *) tilesAdjacentToTile:(GameTile *)tile;
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
 - (void) animateTileToEmptyTile:(GameTile *)tile;
-- (void) swapTileCoordinates:(GameTile *)tile withTile:(GameTile *)anotherTile;
 @end
 
 @implementation ViewController
-@synthesize gameGrid, targetTile, emptyTile, allTiles;
+@synthesize targetTile, emptyTile, allTiles;
 
 #pragma mark - View lifecycle
 
@@ -36,13 +35,12 @@
     gameBoardX = self.view.frame.size.width/2 - w/2;
     gameBoardY = self.view.frame.size.height/2 - h/2;
 
-    self.allTiles = [NSMutableArray arrayWithCapacity:16];
+    self.allTiles = [NSMutableSet setWithCapacity:16];
     [self createGameGrid];
 }
 
 - (void)viewDidUnload {
     [super viewDidUnload];
-    self.gameGrid = nil;
     self.targetTile = nil;
     self.emptyTile = nil;
     self.allTiles = nil;
@@ -79,16 +77,17 @@
 }
 
 - (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column {
-    GameTile *tile = nil;
-    if (row > -1 && column > -1 && row < 4 && column < 4) {
-        NSMutableArray *columnArray = [self.gameGrid objectAtIndex:row];
-        tile = [columnArray objectAtIndex:column];
-    }
+    __block GameTile *tile = nil;
+    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *candidate, BOOL *stop) {
+        if (candidate.row == row && candidate.column == column) {
+            tile = candidate;
+            *stop = YES;
+        }
+    }];
     return tile;
 }
 
 - (void) createGameGrid {
-    self.gameGrid = [NSMutableArray arrayWithCapacity:4];
     for (int rowI = 0; rowI <= 3; rowI++) {
         for (int colI = 0; colI <= 3; colI++) {
             [self addTileAtRow:rowI column:colI];
@@ -97,19 +96,11 @@
 }
 
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column {
-    NSMutableArray *columnArray = nil;
-    if ([self.gameGrid count] ==  row) {
-        columnArray = [NSMutableArray arrayWithCapacity:4];
-        [self.gameGrid insertObject:columnArray atIndex:row];
-    } else {
-        columnArray = [self.gameGrid objectAtIndex:row];
-    }
     GameTile *tile = [GameTile new];
     [self.allTiles addObject:tile];
     tile.row = row;
     tile.column = column;
     [self renderTile:tile];
-    [columnArray insertObject:tile atIndex:column];
 }
 
 - (void) renderTile:(GameTile *)tile {
@@ -127,33 +118,24 @@
 
 #pragma mark - Positioning
 
-- (void) swapTileCoordinates:(GameTile *)tile withTile:(GameTile *)anotherTile {
-    NSMutableArray *tileRow = [self.gameGrid objectAtIndex:tile.row];
-    NSMutableArray *anotherTileRow = [self.gameGrid objectAtIndex:anotherTile.row];
-    [tile swapCoordinatesWith:anotherTile];
-    [tileRow removeObject:tile];
-    [anotherTileRow removeObject:anotherTile];
-    [tileRow insertObject:anotherTile atIndex:anotherTile.column];
-    [anotherTileRow insertObject:tile atIndex:tile.column];
-}
-
 - (void) animateTileToEmptyTile:(GameTile *)tile {
     __block GameTile *animatedTile = tile;
+    CGRect tileRect = animatedTile.frame;
+    self.emptyTile.frame = tileRect;
     __block CGRect emptyTileRect = [self rectForRow:self.emptyTile.row column:self.emptyTile.column];
+    [animatedTile swapCoordinatesWith:self.emptyTile];
+    NSLog(@"animatedTile: %@, empty: %@", animatedTile, self.emptyTile);
     [UIView animateWithDuration:kAnimationSpeed
                           delay:0
-                        options:UIViewAnimationOptionCurveEaseOut
+                        options:UIViewAnimationOptionCurveLinear
                      animations:^{
                          animatedTile.frame = emptyTileRect;
                      }
-                     completion:^(BOOL finished) {
-                         [self swapTileCoordinates:animatedTile withTile:self.emptyTile];
-                         NSLog(@"animatedTile: %@, empty: %@", animatedTile, self.emptyTile);
-                     }];
+                     completion:NULL];
 }
 
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column {
-    return CGRectMake((row * kTileSize) + gameBoardX, (column * kTileSize) + gameBoardY, kTileSize, kTileSize);
+    return CGRectMake((column * kTileSize) + gameBoardX, (row * kTileSize) + gameBoardY, kTileSize, kTileSize);
 }
 
 #pragma mark - Touches
@@ -172,7 +154,6 @@
         
         NSLog(@"Adjacent to empty tile %d", [adjacentTiles containsObject:self.emptyTile]);
         NSLog(@"tapped: %@, empty: %@", self.targetTile, self.emptyTile);
-        [adjacentTiles makeObjectsPerformSelector:@selector(highlight)];
         if ([adjacentTiles containsObject:self.emptyTile] && (self.targetTile.row == self.emptyTile.row || self.targetTile.column == self.emptyTile.column)) {
             [self animateTileToEmptyTile:self.targetTile];
         }
@@ -183,7 +164,6 @@
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self.allTiles makeObjectsPerformSelector:@selector(normal)];
 }
 
 @end
