@@ -21,10 +21,11 @@
 - (NSSet *) tilesAdjacentToTile:(GameTile *)tile;
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
 - (void) animateTileToEmptyTile:(GameTile *)tile;
+- (void) makeMovesIfAnyExistForTile:(GameTile *)tile;
 @end
 
 @implementation ViewController
-@synthesize targetTile, emptyTile, allTiles;
+@synthesize emptyTile, allTiles;
 
 #pragma mark - View lifecycle
 
@@ -41,7 +42,6 @@
 
 - (void)viewDidUnload {
     [super viewDidUnload];
-    self.targetTile = nil;
     self.emptyTile = nil;
     self.allTiles = nil;
 }
@@ -116,6 +116,16 @@
     [self.view addSubview:tile];
 }
 
+- (void) makeMovesIfAnyExistForTile:(GameTile *)tile {
+    NSSet *adjacentTiles = [self tilesAdjacentToTile:tile];
+    
+    NSLog(@"Adjacent to empty tile %d", [adjacentTiles containsObject:self.emptyTile]);
+    NSLog(@"tapped: %@, empty: %@", tile, self.emptyTile);
+    if ([adjacentTiles containsObject:self.emptyTile] && (tile.row == self.emptyTile.row || tile.column == self.emptyTile.column)) {
+        [self animateTileToEmptyTile:tile];
+    }
+}
+
 #pragma mark - Positioning
 
 - (void) animateTileToEmptyTile:(GameTile *)tile {
@@ -149,14 +159,7 @@
         }
     }];
     if (firstTouch) {
-        self.targetTile = (GameTile *)firstTouch.view;
-        NSSet *adjacentTiles = [self tilesAdjacentToTile:self.targetTile];
-        
-        NSLog(@"Adjacent to empty tile %d", [adjacentTiles containsObject:self.emptyTile]);
-        NSLog(@"tapped: %@, empty: %@", self.targetTile, self.emptyTile);
-        if ([adjacentTiles containsObject:self.emptyTile] && (self.targetTile.row == self.emptyTile.row || self.targetTile.column == self.emptyTile.column)) {
-            [self animateTileToEmptyTile:self.targetTile];
-        }
+        [self makeMovesIfAnyExistForTile:(GameTile *)firstTouch.view];
     }
 }
 
