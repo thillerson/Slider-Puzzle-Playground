@@ -18,10 +18,10 @@
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column;
 - (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column;
 - (void) renderTile:(GameTile *)tile;
-- (NSSet *) tilesAdjacentToTile:(GameTile *)tile;
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
-- (void) animateTileToEmptyTile:(GameTile *)tile;
+- (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column;
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile;
+- (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
 @end
 
 @implementation ViewController
@@ -51,30 +51,6 @@
 }
 
 #pragma mark - Grids and Tiles
-
-- (NSSet *) tilesAdjacentToTile:(GameTile *)tile {
-    int row = tile.row;
-    int col = tile.column;
-    GameTile *foundTile = nil;
-    NSMutableSet *set = [NSMutableSet set];
-    foundTile = [self tileAtRow:row + 1 column:col];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row column:col + 1];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row + 1 column:col + 1];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row - 1 column:col];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row column:col - 1];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row - 1 column:col - 1];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row - 1 column:col + 1];
-    if (foundTile) [set addObject:foundTile];
-    foundTile = [self tileAtRow:row + 1 column:col - 1];
-    if (foundTile) [set addObject:foundTile];
-    return set;
-}
 
 - (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column {
     __block GameTile *tile = nil;
@@ -117,32 +93,71 @@
 }
 
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile {
-    NSSet *adjacentTiles = [self tilesAdjacentToTile:tile];
-    
-    NSLog(@"Adjacent to empty tile %d", [adjacentTiles containsObject:self.emptyTile]);
-    NSLog(@"tapped: %@, empty: %@", tile, self.emptyTile);
-    if ([adjacentTiles containsObject:self.emptyTile] && (tile.row == self.emptyTile.row || tile.column == self.emptyTile.column)) {
-        [self animateTileToEmptyTile:tile];
+    if (tile.row == self.emptyTile.row || tile.column == self.emptyTile.column) {
+        NSLog(@"tapped: %@, empty: %@", tile, self.emptyTile);
+        [self moveTilesTowardsEmptyTileStartingAtTile:tile];
     }
+}
+
+- (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile {
+    if (tile == self.emptyTile) return;
+
+    CGRect tileRect = tile.frame;
+    self.emptyTile.frame = tileRect;
+    int row = tile.row;
+    int column = tile.column;
+    
+    int i;
+    GameTile *tileToMove = nil;
+    // Bring In The Brute Force!
+    if (self.emptyTile.row == tile.row) {
+        if (self.emptyTile.column < tile.column) {
+            for (i = self.emptyTile.column + 1; i < tile.column + 1; i++) {
+                tileToMove = [self tileAtRow:tile.row column:i];
+                [self animateTile:tileToMove toRow:tile.row andColumn:i - 1];
+            }
+        } else {
+            for (i = self.emptyTile.column - 1; i > tile.column - 1; i--) {
+                tileToMove = [self tileAtRow:tile.row column:i];
+                [self animateTile:tileToMove toRow:tile.row andColumn:i + 1];
+            }
+        }
+    } else if (self.emptyTile.column == tile.column) {
+        if (self.emptyTile.row < tile.row) {
+            for (i = self.emptyTile.row + 1; i < tile.row + 1; i++) {
+                tileToMove = [self tileAtRow:i column:tile.column];
+                [self animateTile:tileToMove toRow:i - 1 andColumn:tile.column];
+            }
+        } else {
+            for (i = self.emptyTile.row - 1; i > tile.row - 1; i--) {
+                tileToMove = [self tileAtRow:i column:tile.column];
+                [self animateTile:tileToMove toRow:i + 1 andColumn:tile.column];
+            }
+        }
+    }
+    
+    self.emptyTile.row = row;
+    self.emptyTile.column = column;
 }
 
 #pragma mark - Positioning
 
-- (void) animateTileToEmptyTile:(GameTile *)tile {
+- (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column {
+    NSLog(@"Animating tile %@ to %d,%d", tile, row, column);
     __block GameTile *animatedTile = tile;
-    CGRect tileRect = animatedTile.frame;
-    self.emptyTile.frame = tileRect;
-    __block CGRect emptyTileRect = [self rectForRow:self.emptyTile.row column:self.emptyTile.column];
-    [animatedTile swapCoordinatesWith:self.emptyTile];
-    NSLog(@"animatedTile: %@, empty: %@", animatedTile, self.emptyTile);
+    __block CGRect targetRect = [self rectForRow:row column:column];
     [UIView animateWithDuration:kAnimationSpeed
                           delay:0
                         options:UIViewAnimationOptionCurveLinear
                      animations:^{
-                         animatedTile.frame = emptyTileRect;
+                         animatedTile.frame = targetRect;
                      }
-                     completion:NULL];
-}
+                     completion:^(BOOL finished) {
+                         NSLog(@"Animation Finished");
+                         animatedTile.row = row;
+                         animatedTile.column = column;
+                     }];
+    }
 
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column {
     return CGRectMake((column * kTileSize) + gameBoardX, (row * kTileSize) + gameBoardY, kTileSize, kTileSize);
