@@ -22,6 +22,7 @@
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column;
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile;
 - (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
+- (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
 @implementation ViewController
@@ -166,6 +167,16 @@
 #pragma mark - Touches
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+}
+
+- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+}
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self makeMovesIfAnyExistForTile:[self tileForTouches:touches withEvent:event]];
+}
+
+- (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event {
     __block UITouch *firstTouch = nil;
     [[event allTouches] enumerateObjectsUsingBlock:^(UITouch *touch, BOOL *stop) {
         if ([touch.view isKindOfClass:[GameTile class]]) {
@@ -174,14 +185,9 @@
         }
     }];
     if (firstTouch) {
-        [self makeMovesIfAnyExistForTile:(GameTile *)firstTouch.view];
+        return (GameTile *)firstTouch.view;
     }
-}
-
-- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-}
-
-- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    return nil;
 }
 
 @end
