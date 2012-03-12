@@ -22,6 +22,7 @@
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column;
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile;
 - (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
+- (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
@@ -170,13 +171,16 @@
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
+    GameTile *movedTile = (GameTile *)firstTouch.view;
+    movedTile.center = [firstTouch locationInView:self.view];
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     [self makeMovesIfAnyExistForTile:[self tileForTouches:touches withEvent:event]];
 }
 
-- (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event {
+- (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event {
     __block UITouch *firstTouch = nil;
     [[event allTouches] enumerateObjectsUsingBlock:^(UITouch *touch, BOOL *stop) {
         if ([touch.view isKindOfClass:[GameTile class]]) {
@@ -184,10 +188,13 @@
             firstTouch = touch;
         }
     }];
-    if (firstTouch) {
-        return (GameTile *)firstTouch.view;
-    }
-    return nil;
+    return firstTouch;
+}
+
+- (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
+    GameTile *tile = (GameTile *)firstTouch.view;
+    return tile;
 }
 
 @end
