@@ -12,6 +12,7 @@
 
 @interface ViewController : UIViewController {
     int gameBoardX,gameBoardY;
+    CGRect gameBoardBounds;
 }
 
 @property(strong, nonatomic) NSMutableSet *allTiles;

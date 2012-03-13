@@ -37,6 +37,7 @@
     int h = kTileSize * 4;
     gameBoardX = self.view.frame.size.width/2 - w/2;
     gameBoardY = self.view.frame.size.height/2 - h/2;
+    gameBoardBounds = CGRectMake(gameBoardX, gameBoardY, w, h);
 
     self.allTiles = [NSMutableSet setWithCapacity:16];
     [self createGameGrid];
@@ -167,6 +168,8 @@
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    //TODO: If the touch moves too fast the tile may not make it all the way to the edge before stopping.
+    // Set the frame to a frame closest the edge of the board in the path the tile was following.
     UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
     GameTile *movedTile = (GameTile *)firstTouch.view;
     CGPoint touchCenter = [firstTouch locationInView:self.view];
@@ -177,7 +180,14 @@
     } else if (movedTile.column == self.emptyTile.column) {
         y = touchCenter.y;
     }
+    
+    // Lazy perhaps...
+    CGPoint oldCenter = movedTile.center;
     movedTile.center = CGPointMake(x, y);
+
+    if (!CGRectContainsRect(gameBoardBounds, movedTile.frame)) {
+        movedTile.center = oldCenter;
+    }
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
