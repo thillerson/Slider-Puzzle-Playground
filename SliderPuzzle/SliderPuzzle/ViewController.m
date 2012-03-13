@@ -169,7 +169,15 @@
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
     GameTile *movedTile = (GameTile *)firstTouch.view;
-    movedTile.center = [firstTouch locationInView:self.view];
+    CGPoint touchCenter = [firstTouch locationInView:self.view];
+    int x = movedTile.center.x;
+    int y = movedTile.center.y;
+    if (movedTile.row == self.emptyTile.row) {
+        x = touchCenter.x;
+    } else if (movedTile.column == self.emptyTile.column) {
+        y = touchCenter.y;
+    }
+    movedTile.center = CGPointMake(x, y);
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
