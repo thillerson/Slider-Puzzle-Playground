@@ -24,6 +24,7 @@
 - (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
 - (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event;
+- (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile;
 @end
 
 @implementation ViewController
@@ -168,8 +169,8 @@
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    //TODO: If the touch moves too fast the tile may not make it all the way to the edge before stopping.
-    // Set the frame to a frame closest the edge of the board in the path the tile was following.
+    //TODO: If the touch moves too fast the tile may not make it all the way to the edge of an obstruction
+    // before stopping. Set the frame to a frame closest the legal edge in the path the tile was following.
     UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
     GameTile *movedTile = (GameTile *)firstTouch.view;
     CGPoint touchCenter = [firstTouch locationInView:self.view];
@@ -184,10 +185,23 @@
     // Lazy perhaps...
     CGPoint oldCenter = movedTile.center;
     movedTile.center = CGPointMake(x, y);
-
-    if (!CGRectContainsRect(gameBoardBounds, movedTile.frame)) {
+    BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, movedTile.frame) || [self anotherVisibleTileCollidesWithTile:movedTile];
+    if (impossibleMove) {
         movedTile.center = oldCenter;
     }
+}
+
+- (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile {
+    __block BOOL collision = NO;
+    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *otherTile, BOOL *stop) {
+        CGRect tileFrame = tile.frame;
+        if (!otherTile.isEmptyTile && otherTile != tile && CGRectIntersectsRect(tileFrame, otherTile.frame)) {
+            NSLog(@"Intersects with tile: %@", otherTile);
+            *stop = YES;
+            collision = YES;
+        }
+    }];
+    return collision;
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
