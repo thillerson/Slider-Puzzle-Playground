@@ -21,7 +21,7 @@
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column;
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column;
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile;
-- (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
+- (void) animateTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile;
 - (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile;
@@ -92,16 +92,31 @@
     [self.view addSubview:tile];
 }
 
+- (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile {
+    __block BOOL collision = NO;
+    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *otherTile, BOOL *stop) {
+        CGRect tileFrame = tile.frame;
+        if (!otherTile.isEmptyTile && otherTile != tile && CGRectIntersectsRect(tileFrame, otherTile.frame)) {
+            NSLog(@"Intersects with tile: %@", otherTile);
+            *stop = YES;
+            collision = YES;
+        }
+    }];
+    return collision;
+}
+
+#pragma mark - Positioning
+
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile {
     if (tile.row == self.emptyTile.row || tile.column == self.emptyTile.column) {
         NSLog(@"tapped: %@, empty: %@", tile, self.emptyTile);
-        [self moveTilesTowardsEmptyTileStartingAtTile:tile];
+        [self animateTilesTowardsEmptyTileStartingAtTile:tile];
     }
 }
 
-- (void) moveTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile {
+- (void) animateTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile {
     if (tile == self.emptyTile) return;
-
+    
     CGRect tileRect = tile.frame;
     self.emptyTile.frame = tileRect;
     int row = tile.row;
@@ -139,8 +154,6 @@
     self.emptyTile.row = row;
     self.emptyTile.column = column;
 }
-
-#pragma mark - Positioning
 
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column {
     NSLog(@"Animating tile %@ to %d,%d", tile, row, column);
@@ -189,19 +202,6 @@
     if (impossibleMove) {
         movedTile.center = oldCenter;
     }
-}
-
-- (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile {
-    __block BOOL collision = NO;
-    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *otherTile, BOOL *stop) {
-        CGRect tileFrame = tile.frame;
-        if (!otherTile.isEmptyTile && otherTile != tile && CGRectIntersectsRect(tileFrame, otherTile.frame)) {
-            NSLog(@"Intersects with tile: %@", otherTile);
-            *stop = YES;
-            collision = YES;
-        }
-    }];
-    return collision;
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
