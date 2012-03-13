@@ -66,11 +66,7 @@
 }
 
 - (void) createGameGrid {
-    for (int rowI = 0; rowI <= 3; rowI++) {
-        for (int colI = 0; colI <= 3; colI++) {
-            [self addTileAtRow:rowI column:colI];
-        }
-    }
+    for (int rowI = 0; rowI <= 3; rowI++) { for (int colI = 0; colI <= 3; colI++) { [self addTileAtRow:rowI column:colI]; } }
 }
 
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column {
