@@ -16,6 +16,6 @@
 
 - (void) highlight;
 - (void) normal;
-- (void) swapCoordinatesWith:(GameTile *)anotherTile;
+- (NSInteger) distanceInRowOrColumnFromTileToAnotherTile:(GameTile *)anotherTile;
 
 @end

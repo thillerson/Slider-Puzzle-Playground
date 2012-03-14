@@ -17,5 +17,8 @@
 
 @property(strong, nonatomic) NSMutableSet *allTiles;
 @property(strong, nonatomic) GameTile *emptyTile;
+@property(strong, nonatomic) NSString *lastTouchCenter;
+@property(strong, nonatomic) GameTile *movedTile;
+@property(strong, nonatomic) NSArray *tilesFromTileToEmptyTile;
 
 @end

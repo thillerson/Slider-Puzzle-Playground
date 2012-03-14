@@ -19,13 +19,13 @@
     self.backgroundColor = (isEmptyTile) ? [UIColor clearColor] : [UIColor blackColor];
 }
 
-- (void) swapCoordinatesWith:(GameTile *)anotherTile {
-    int anotherRow = anotherTile.row;
-    int anotherColumn = anotherTile.column;
-    anotherTile.row = self.row;
-    anotherTile.column = self.column;
-    self.row = anotherRow;
-    self.column = anotherColumn;
+- (NSInteger) distanceInRowOrColumnFromTileToAnotherTile:(GameTile *)anotherTile {
+    if (self.row == anotherTile.row) {
+        return self.column - anotherTile.column;
+    } else if (self.column == anotherTile.column) {
+        return self.row - anotherTile.row;
+    }
+    return NAN;
 }
 
 - (NSString *) description {

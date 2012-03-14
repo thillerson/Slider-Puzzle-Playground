@@ -25,10 +25,12 @@
 - (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (GameTile *) tileForTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 - (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile;
+- (NSArray *) tilesBetweenTileAndEmptyTile:(GameTile *)tile;
+- (UITouch *) firstTouchThatTouchesTile:(GameTile *)tile fromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
 @implementation ViewController
-@synthesize emptyTile, allTiles;
+@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile;
 
 #pragma mark - View lifecycle
 
@@ -48,6 +50,9 @@
     [super viewDidUnload];
     self.emptyTile = nil;
     self.allTiles = nil;
+    self.lastTouchCenter = nil;
+    self.movedTile = nil;
+    self.tilesFromTileToEmptyTile = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -55,17 +60,6 @@
 }
 
 #pragma mark - Grids and Tiles
-
-- (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column {
-    __block GameTile *tile = nil;
-    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *candidate, BOOL *stop) {
-        if (candidate.row == row && candidate.column == column) {
-            tile = candidate;
-            *stop = YES;
-        }
-    }];
-    return tile;
-}
 
 - (void) createGameGrid {
     for (int rowI = 0; rowI <= 3; rowI++) { for (int colI = 0; colI <= 3; colI++) { [self addTileAtRow:rowI column:colI]; } }
@@ -91,6 +85,50 @@
     }
     [self.view addSubview:tile];
 }
+
+- (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column {
+    __block GameTile *tile = nil;
+    [self.allTiles enumerateObjectsUsingBlock:^(GameTile *candidate, BOOL *stop) {
+        if (candidate.row == row && candidate.column == column) {
+            tile = candidate;
+            *stop = YES;
+        }
+    }];
+    return tile;
+}
+
+- (NSArray *) tilesBetweenTileAndEmptyTile:(GameTile *)tile {
+    GameTile *foundTile = nil;
+    NSMutableArray *tiles = [NSMutableArray array];
+    int i;
+    if (self.emptyTile.row == tile.row) {
+        if (self.emptyTile.column < tile.column) {
+            for (i = self.emptyTile.column + 1; i < tile.column + 1; i++) {
+                foundTile = [self tileAtRow:tile.row column:i];
+                [tiles addObject:foundTile];
+            }
+        } else {
+            for (i = self.emptyTile.column - 1; i > tile.column - 1; i--) {
+                foundTile = [self tileAtRow:tile.row column:i];
+                [tiles addObject:foundTile];
+            }
+        }
+    } else if (self.emptyTile.column == tile.column) {
+        if (self.emptyTile.row < tile.row) {
+            for (i = self.emptyTile.row + 1; i < tile.row + 1; i++) {
+                foundTile = [self tileAtRow:i column:tile.column];
+                [tiles addObject:foundTile];
+            }
+        } else {
+            for (i = self.emptyTile.row - 1; i > tile.row - 1; i--) {
+                foundTile = [self tileAtRow:i column:tile.column];
+                [tiles addObject:foundTile];
+            }
+        }
+    }
+    return [tiles count] > 0 ? tiles : nil;
+}
+
 
 - (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile {
     __block BOOL collision = NO;
@@ -179,33 +217,60 @@
 #pragma mark - Touches
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
+    self.movedTile = (GameTile *)firstTouch.view;
+    self.tilesFromTileToEmptyTile = [self tilesBetweenTileAndEmptyTile:movedTile];
+    if (tilesFromTileToEmptyTile) {
+        CGPoint touchCenter = [firstTouch locationInView:self.view];
+        self.lastTouchCenter = NSStringFromCGPoint(touchCenter);
+    }
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     //TODO: If the touch moves too fast the tile may not make it all the way to the edge of an obstruction
     // before stopping. Set the frame to a frame closest the legal edge in the path the tile was following.
-    UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
-    GameTile *movedTile = (GameTile *)firstTouch.view;
-    CGPoint touchCenter = [firstTouch locationInView:self.view];
-    int x = movedTile.center.x;
-    int y = movedTile.center.y;
-    if (movedTile.row == self.emptyTile.row) {
-        x = touchCenter.x;
-    } else if (movedTile.column == self.emptyTile.column) {
-        y = touchCenter.y;
-    }
-    
-    // Lazy perhaps...
-    CGPoint oldCenter = movedTile.center;
-    movedTile.center = CGPointMake(x, y);
-    BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, movedTile.frame) || [self anotherVisibleTileCollidesWithTile:movedTile];
-    if (impossibleMove) {
-        movedTile.center = oldCenter;
+    if (self.movedTile) {
+        UITouch *firstTouch = [self firstTouchThatTouchesTile:self.movedTile fromTouches:touches withEvent:event];
+        if (firstTouch) {
+            CGPoint touchCenter = [firstTouch locationInView:self.view];
+            CGPoint lastCenter = CGPointFromString(self.lastTouchCenter);
+            int xDelta = touchCenter.x - lastCenter.x;
+            int yDelta = touchCenter.y - lastCenter.y;
+            CGPoint oldTileCenter = movedTile.center;
+            CGPoint newCenter = CGPointMake(oldTileCenter.x, oldTileCenter.y);
+            if (movedTile.row == self.emptyTile.row) {
+                newCenter.x = newCenter.x + xDelta;
+            } else if (movedTile.column == self.emptyTile.column) {
+                newCenter.y = newCenter.y + yDelta;
+            }
+            
+            // Lazy perhaps...
+            movedTile.center = newCenter;
+            BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, movedTile.frame) || [self anotherVisibleTileCollidesWithTile:movedTile];
+            if (impossibleMove) {
+                movedTile.center = oldTileCenter;
+            }
+            self.lastTouchCenter = NSStringFromCGPoint(touchCenter);
+        }
     }
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     [self makeMovesIfAnyExistForTile:[self tileForTouches:touches withEvent:event]];
+    self.lastTouchCenter = nil;
+    self.movedTile = nil;
+    self.tilesFromTileToEmptyTile = nil;
+}
+
+- (UITouch *) firstTouchThatTouchesTile:(GameTile *)tile fromTouches:(NSSet *)touches withEvent:(UIEvent *)event {
+    __block UITouch *firstTouch = nil;
+    [[event allTouches] enumerateObjectsUsingBlock:^(UITouch *touch, BOOL *stop) {
+        if (touch.view == tile) {
+            *stop = YES;
+            firstTouch = touch;
+        }
+    }];
+    return firstTouch;
 }
 
 - (UITouch *) firstTouchThatTouchesATileFromTouches:(NSSet *)touches withEvent:(UIEvent *)event {
