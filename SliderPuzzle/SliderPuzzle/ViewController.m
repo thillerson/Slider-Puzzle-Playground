@@ -227,8 +227,6 @@
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    //TODO: If the touch moves too fast the tile may not make it all the way to the edge of an obstruction
-    // before stopping. Set the frame to a frame closest the legal edge in the path the tile was following.
     if (self.movedTile) {
         UITouch *firstTouch = [self firstTouchThatTouchesTile:self.movedTile fromTouches:touches withEvent:event];
         if (firstTouch) {
@@ -236,20 +234,26 @@
             CGPoint lastCenter = CGPointFromString(self.lastTouchCenter);
             int xDelta = touchCenter.x - lastCenter.x;
             int yDelta = touchCenter.y - lastCenter.y;
-            CGPoint oldTileCenter = movedTile.center;
-            CGPoint newCenter = CGPointMake(oldTileCenter.x, oldTileCenter.y);
-            if (movedTile.row == self.emptyTile.row) {
-                newCenter.x = newCenter.x + xDelta;
-            } else if (movedTile.column == self.emptyTile.column) {
-                newCenter.y = newCenter.y + yDelta;
-            }
             
-            // Lazy perhaps...
-            movedTile.center = newCenter;
-            BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, movedTile.frame) || [self anotherVisibleTileCollidesWithTile:movedTile];
-            if (impossibleMove) {
-                movedTile.center = oldTileCenter;
-            }
+            __block CGPoint oldTileCenter;
+            __block CGPoint newCenter;
+            [self.tilesFromTileToEmptyTile enumerateObjectsUsingBlock:^(GameTile *tile, NSUInteger idx, BOOL *stop) {
+                oldTileCenter = tile.center;
+                newCenter = CGPointMake(oldTileCenter.x, oldTileCenter.y);
+                if (tile.row == self.emptyTile.row) {
+                    newCenter.x = newCenter.x + xDelta;
+                } else if (tile.column == self.emptyTile.column) {
+                    newCenter.y = newCenter.y + yDelta;
+                }
+                
+                // Lazy perhaps...
+                tile.center = newCenter;
+                BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, tile.frame) || [self anotherVisibleTileCollidesWithTile:tile];
+                if (impossibleMove) {
+                    tile.center = oldTileCenter;
+                }
+            }];
+            
             self.lastTouchCenter = NSStringFromCGPoint(touchCenter);
         }
     }
