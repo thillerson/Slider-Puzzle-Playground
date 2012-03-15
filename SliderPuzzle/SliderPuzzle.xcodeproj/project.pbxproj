@@ -10,6 +10,8 @@
 		EA5716C21509BA37003FAFEA /* GameTile.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5716C11509BA37003FAFEA /* GameTile.m */; };
 		EA5A42531511945100A9CE0D /* globe.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EA5A42521511945100A9CE0D /* globe.jpg */; };
 		EA5A42561511958200A9CE0D /* ImageSlicer.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5A42551511958200A9CE0D /* ImageSlicer.m */; };
+		EA5A425D1511BA2700A9CE0D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA5A425C1511BA2700A9CE0D /* AVFoundation.framework */; };
+		EA5A425F15123C8500A9CE0D /* click.caff in Resources */ = {isa = PBXBuildFile; fileRef = EA5A425E15123C8500A9CE0D /* click.caff */; };
 		EAF6BB4515072DEE00926CAB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4415072DEE00926CAB /* UIKit.framework */; };
 		EAF6BB4715072DEE00926CAB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4615072DEE00926CAB /* Foundation.framework */; };
 		EAF6BB4915072DEE00926CAB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4815072DEE00926CAB /* CoreGraphics.framework */; };
@@ -41,6 +43,8 @@
 		EA5A42521511945100A9CE0D /* globe.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = globe.jpg; sourceTree = "<group>"; };
 		EA5A42541511958200A9CE0D /* ImageSlicer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageSlicer.h; sourceTree = "<group>"; };
 		EA5A42551511958200A9CE0D /* ImageSlicer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageSlicer.m; sourceTree = "<group>"; };
+		EA5A425C1511BA2700A9CE0D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		EA5A425E15123C8500A9CE0D /* click.caff */ = {isa = PBXFileReference; lastKnownFileType = file; path = click.caff; sourceTree = "<group>"; };
 		EAF6BB4015072DEE00926CAB /* SliderPuzzle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SliderPuzzle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAF6BB4415072DEE00926CAB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		EAF6BB4615072DEE00926CAB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -67,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA5A425D1511BA2700A9CE0D /* AVFoundation.framework in Frameworks */,
 				EAF6BB4515072DEE00926CAB /* UIKit.framework in Frameworks */,
 				EAF6BB4715072DEE00926CAB /* Foundation.framework in Frameworks */,
 				EAF6BB4915072DEE00926CAB /* CoreGraphics.framework in Frameworks */,
@@ -94,6 +99,14 @@
 			name = Images;
 			sourceTree = "<group>";
 		};
+		EA5A42591511B95200A9CE0D /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				EA5A425E15123C8500A9CE0D /* click.caff */,
+			);
+			name = Sounds;
+			sourceTree = "<group>";
+		};
 		EAF6BB3515072DED00926CAB = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +129,7 @@
 		EAF6BB4315072DEE00926CAB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EA5A425C1511BA2700A9CE0D /* AVFoundation.framework */,
 				EAF6BB4415072DEE00926CAB /* UIKit.framework */,
 				EAF6BB4615072DEE00926CAB /* Foundation.framework */,
 				EAF6BB4815072DEE00926CAB /* CoreGraphics.framework */,
@@ -137,6 +151,7 @@
 				EA5A42541511958200A9CE0D /* ImageSlicer.h */,
 				EA5A42551511958200A9CE0D /* ImageSlicer.m */,
 				EA5A42501511943B00A9CE0D /* Images */,
+				EA5A42591511B95200A9CE0D /* Sounds */,
 				EAF6BB4B15072DEE00926CAB /* Supporting Files */,
 			);
 			path = SliderPuzzle;
@@ -246,6 +261,7 @@
 				EAF6BB4F15072DEE00926CAB /* InfoPlist.strings in Resources */,
 				EAF6BB5B15072DEE00926CAB /* ViewController.xib in Resources */,
 				EA5A42531511945100A9CE0D /* globe.jpg in Resources */,
+				EA5A425F15123C8500A9CE0D /* click.caff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@
 #import "GameTile.h"
 #import "ImageSlicer.h"
 #import <QuartzCore/QuartzCore.h>
+#import <AVFoundation/AVFoundation.h>
 
 #define kTileSize 68
 #define kAnimationSpeed 0.04f
@@ -28,10 +29,11 @@
 - (BOOL) anotherVisibleTileCollidesWithTile:(GameTile *)tile;
 - (NSArray *) tilesBetweenTileAndEmptyTile:(GameTile *)tile;
 - (UITouch *) firstTouchThatTouchesTile:(GameTile *)tile fromTouches:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void) playClick;
 @end
 
 @implementation ViewController
-@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer;
+@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer, audioPlayer;
 
 #pragma mark - View lifecycle
 
@@ -44,8 +46,11 @@
     gameBoardBounds = CGRectMake(gameBoardX, gameBoardY, w, h);
     emptyColumn = arc4random() % 4;
     emptyRow = arc4random() % 4;
+    
+    NSURL *clickURL = [[NSBundle mainBundle] URLForResource:@"click" withExtension:@"caff"];
+    self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:clickURL error:NULL];
 
-    // Using this we could also load an image from the photo library
+    // Using this we could also load an image from the photo library with some simple changes.
     UIImage *img = [UIImage imageNamed:@"globe.jpg"];
     self.imageSlicer = [[ImageSlicer alloc] initWithUnslicedImage:[img CGImage] rows:4 columns:4 tileSize:CGSizeMake(kTileSize, kTileSize)];
 
@@ -64,6 +69,10 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (void) playClick {
+    [self.audioPlayer play];
 }
 
 #pragma mark - Grids and Tiles
@@ -212,6 +221,7 @@
                          NSLog(@"Animation Finished");
                          animatedTile.row = row;
                          animatedTile.column = column;
+                         [self playClick];
                      }];
     }
 

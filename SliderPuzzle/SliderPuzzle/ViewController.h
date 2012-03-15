@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
 @class GameTile, ImageSlicer;
 
@@ -21,5 +22,6 @@
 @property(strong, nonatomic) GameTile *movedTile;
 @property(strong, nonatomic) NSArray *tilesFromTileToEmptyTile;
 @property(strong, nonatomic) ImageSlicer *imageSlicer;
+@property(strong, nonatomic) AVAudioPlayer *audioPlayer;
 
 @end
