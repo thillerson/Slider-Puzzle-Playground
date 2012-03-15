@@ -33,7 +33,8 @@
 @end
 
 @implementation ViewController
-@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer, audioPlayer;
+@synthesize soundToggleButton;
+@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer, audioPlayer, playSounds;
 
 #pragma mark - View lifecycle
 
@@ -49,6 +50,7 @@
     
     NSURL *clickURL = [[NSBundle mainBundle] URLForResource:@"click" withExtension:@"caff"];
     self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:clickURL error:NULL];
+    self.playSounds = YES;
 
     // Using this we could also load an image from the photo library with some simple changes.
     UIImage *img = [UIImage imageNamed:@"globe.jpg"];
@@ -59,6 +61,7 @@
 }
 
 - (void)viewDidUnload {
+    [self setSoundToggleButton:nil];
     [super viewDidUnload];
     self.emptyTile = nil;
     self.allTiles = nil;
@@ -72,7 +75,13 @@
 }
 
 - (void) playClick {
-    [self.audioPlayer play];
+    if (self.playSounds) [self.audioPlayer play];
+}
+
+- (IBAction)soundToggleTapped:(id)sender {
+    self.playSounds = !self.playSounds;
+    NSString *imageName = (self.playSounds) ? @"sound_on.png" : @"sound_off.png";
+    [self.soundToggleButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
 }
 
 #pragma mark - Grids and Tiles

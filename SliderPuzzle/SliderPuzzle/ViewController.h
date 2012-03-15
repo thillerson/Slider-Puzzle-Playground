@@ -23,5 +23,8 @@
 @property(strong, nonatomic) NSArray *tilesFromTileToEmptyTile;
 @property(strong, nonatomic) ImageSlicer *imageSlicer;
 @property(strong, nonatomic) AVAudioPlayer *audioPlayer;
+@property (strong, nonatomic) IBOutlet UIButton *soundToggleButton;
+@property(nonatomic) BOOL playSounds;
 
+- (IBAction)soundToggleTapped:(id)sender;
 @end
