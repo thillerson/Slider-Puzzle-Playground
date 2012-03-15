@@ -13,9 +13,8 @@
 @property(nonatomic) NSInteger row;
 @property(nonatomic) NSInteger column;
 @property(nonatomic) BOOL isEmptyTile;
+@property(nonatomic) CGImageRef tileImage;
 
-- (void) highlight;
-- (void) normal;
 - (NSInteger) distanceInRowOrColumnFromTileToAnotherTile:(GameTile *)anotherTile;
 
 @end

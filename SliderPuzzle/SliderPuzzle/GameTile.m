@@ -9,14 +9,20 @@
 #import "GameTile.h"
 
 @implementation GameTile
-@synthesize row, column, isEmptyTile;
+@synthesize row, column, isEmptyTile, tileImage;
 
-- (void) highlight {
-    self.backgroundColor = [UIColor redColor];
+- (void) setIsEmptyTile:(BOOL)empty {
+    isEmptyTile = empty;
+    self.backgroundColor = [UIColor clearColor];
 }
 
-- (void) normal {
-    self.backgroundColor = (isEmptyTile) ? [UIColor clearColor] : [UIColor blackColor];
+- (void) drawRect:(CGRect)rect {
+    if (self.isEmptyTile) {
+        [super drawRect:rect];
+    } else {
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        CGContextDrawImage(context, self.bounds, self.tileImage);
+    }
 }
 
 - (NSInteger) distanceInRowOrColumnFromTileToAnotherTile:(GameTile *)anotherTile {
