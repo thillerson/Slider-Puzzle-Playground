@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		EA5716C21509BA37003FAFEA /* GameTile.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5716C11509BA37003FAFEA /* GameTile.m */; };
+		EA5A42531511945100A9CE0D /* globe.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EA5A42521511945100A9CE0D /* globe.jpg */; };
 		EAF6BB4515072DEE00926CAB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4415072DEE00926CAB /* UIKit.framework */; };
 		EAF6BB4715072DEE00926CAB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4615072DEE00926CAB /* Foundation.framework */; };
 		EAF6BB4915072DEE00926CAB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF6BB4815072DEE00926CAB /* CoreGraphics.framework */; };
@@ -36,6 +37,7 @@
 /* Begin PBXFileReference section */
 		EA5716C01509BA37003FAFEA /* GameTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameTile.h; sourceTree = "<group>"; };
 		EA5716C11509BA37003FAFEA /* GameTile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameTile.m; sourceTree = "<group>"; };
+		EA5A42521511945100A9CE0D /* globe.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = globe.jpg; sourceTree = "<group>"; };
 		EAF6BB4015072DEE00926CAB /* SliderPuzzle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SliderPuzzle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAF6BB4415072DEE00926CAB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		EAF6BB4615072DEE00926CAB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -81,6 +83,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EA5A42501511943B00A9CE0D /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				EA5A42521511945100A9CE0D /* globe.jpg */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
 		EAF6BB3515072DED00926CAB = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +131,7 @@
 				EAF6BB5915072DEE00926CAB /* ViewController.xib */,
 				EA5716C01509BA37003FAFEA /* GameTile.h */,
 				EA5716C11509BA37003FAFEA /* GameTile.m */,
+				EA5A42501511943B00A9CE0D /* Images */,
 				EAF6BB4B15072DEE00926CAB /* Supporting Files */,
 			);
 			path = SliderPuzzle;
@@ -229,6 +240,7 @@
 			files = (
 				EAF6BB4F15072DEE00926CAB /* InfoPlist.strings in Resources */,
 				EAF6BB5B15072DEE00926CAB /* ViewController.xib in Resources */,
+				EA5A42531511945100A9CE0D /* globe.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
