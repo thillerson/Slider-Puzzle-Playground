@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "GameTile.h"
+#import "ImageSlicer.h"
 #import <QuartzCore/QuartzCore.h>
 
 #define kTileSize 68
@@ -30,7 +31,7 @@
 @end
 
 @implementation ViewController
-@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile;
+@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer;
 
 #pragma mark - View lifecycle
 
@@ -41,6 +42,12 @@
     gameBoardX = self.view.frame.size.width/2 - w/2;
     gameBoardY = self.view.frame.size.height/2 - h/2;
     gameBoardBounds = CGRectMake(gameBoardX, gameBoardY, w, h);
+    emptyColumn = arc4random() % 4;
+    emptyRow = arc4random() % 4;
+
+    // Using this we could also load an image from the photo library
+    UIImage *img = [UIImage imageNamed:@"globe.jpg"];
+    self.imageSlicer = [[ImageSlicer alloc] initWithUnslicedImage:[img CGImage] rows:4 columns:4 tileSize:CGSizeMake(kTileSize, kTileSize)];
 
     self.allTiles = [NSMutableSet setWithCapacity:16];
     [self createGameGrid];
@@ -67,6 +74,7 @@
 
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column {
     GameTile *tile = [GameTile new];
+    tile.tileImage = [self.imageSlicer serveRandomSlice];
     [self.allTiles addObject:tile];
     tile.row = row;
     tile.column = column;
@@ -75,13 +83,10 @@
 
 - (void) renderTile:(GameTile *)tile {
     tile.frame = [self rectForRow:tile.row column:tile.column];
-    if (tile.row == 3 && tile.column == 3) {
+    if (tile.row == emptyRow && tile.column == emptyColumn) {
         self.emptyTile = tile;
         tile.isEmptyTile = YES;
-        tile.backgroundColor = [UIColor clearColor];
-    } else {
-        tile.backgroundColor = [UIColor blackColor];
-        tile.layer.cornerRadius = 2;
+        [tile setNeedsDisplay];
     }
     [self.view addSubview:tile];
 }
