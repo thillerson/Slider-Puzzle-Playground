@@ -35,6 +35,7 @@
     CGImageRelease(self.sizedImage);
 }
 
+// I read about the ideas in this method here: http://juliuspaintings.co.uk/cgi-bin/paint_css/more_cocoa_examples/090-CGImage-scale.pl
 - (void) slice {
     CGSize totalSize = CGSizeMake(self.rows * self.tileSize.width, self.columns * self.tileSize.height);
     sizedContext = CGBitmapContextCreate(NULL,
