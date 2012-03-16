@@ -264,12 +264,14 @@
 #pragma mark - Touches
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
-    self.movedTile = (GameTile *)firstTouch.view;
-    self.tilesFromTileToEmptyTile = [self tilesBetweenTileAndEmptyTile:movedTile];
-    if (tilesFromTileToEmptyTile) {
-        CGPoint touchCenter = [firstTouch locationInView:self.view];
-        self.lastTouchCenter = NSStringFromCGPoint(touchCenter);
+    if (self.movedTile == nil) {
+        UITouch *firstTouch = [self firstTouchThatTouchesATileFromTouches:touches withEvent:event];
+        self.movedTile = (GameTile *)firstTouch.view;
+        self.tilesFromTileToEmptyTile = [self tilesBetweenTileAndEmptyTile:movedTile];
+        if (tilesFromTileToEmptyTile) {
+            CGPoint touchCenter = [firstTouch locationInView:self.view];
+            self.lastTouchCenter = NSStringFromCGPoint(touchCenter);
+        }
     }
 }
 
