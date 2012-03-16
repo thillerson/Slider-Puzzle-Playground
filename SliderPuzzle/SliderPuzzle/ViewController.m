@@ -201,8 +201,6 @@
 - (void) animateTilesTowardsEmptyTileStartingAtTile:(GameTile *)tile {
     if (tile == self.emptyTile) return;
     
-    CGRect tileRect = tile.frame;
-    self.emptyTile.frame = tileRect;
     int row = tile.row;
     int column = tile.column;
     
@@ -237,6 +235,7 @@
     
     self.emptyTile.row = row;
     self.emptyTile.column = column;
+    self.emptyTile.frame = [self rectForRow:row column:column];
 }
 
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column {
