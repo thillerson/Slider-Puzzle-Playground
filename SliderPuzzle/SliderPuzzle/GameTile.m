@@ -7,13 +7,23 @@
 //
 
 #import "GameTile.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation GameTile
 @synthesize row, column, isEmptyTile, tileImage, moveDelta;
 
+- (id) init {
+    if (self = [super init]) {
+        self.layer.borderWidth = .4;
+        self.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    }
+    return self;
+}
+
 - (void) setIsEmptyTile:(BOOL)empty {
     isEmptyTile = empty;
     self.backgroundColor = [UIColor clearColor];
+    self.layer.borderWidth = 0;
     [self setNeedsDisplay];
 }
 

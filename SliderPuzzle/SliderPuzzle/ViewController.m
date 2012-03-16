@@ -16,6 +16,7 @@
 #define kAnimationSpeed 0.04f
 
 @interface ViewController (Private)
+- (void) drawGameContainer;
 - (void) createGameGrid;
 - (void) addTileAtRow:(NSInteger)row column:(NSInteger)column;
 - (GameTile *) tileAtRow:(NSInteger)row column:(NSInteger)column;
@@ -44,6 +45,7 @@
     gameBoardX = self.view.frame.size.width/2 - w/2;
     gameBoardY = self.view.frame.size.height/2 - h/2;
     gameBoardBounds = CGRectMake(gameBoardX, gameBoardY, w, h);
+    [self drawGameContainer];
     emptyColumn = arc4random() % 4;
     emptyRow = arc4random() % 4;
     
@@ -74,6 +76,19 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (void) drawGameContainer {
+    UIView *gameContainer = [[UIView alloc] initWithFrame:CGRectInset(gameBoardBounds, -8, -8)];
+    gameContainer.backgroundColor = [UIColor colorWithRed:.2 green:.2 blue:.2 alpha:.6];
+    gameContainer.layer.borderColor = [[UIColor darkGrayColor] CGColor];
+    gameContainer.layer.borderWidth = 8;
+    gameContainer.layer.cornerRadius = 8;
+    gameContainer.layer.shadowRadius = 4;
+    gameContainer.layer.shadowColor = [[UIColor blackColor] CGColor];
+    gameContainer.layer.shadowOffset = CGSizeMake(4, 4);
+    gameContainer.layer.shadowOpacity = .6;
+    [self.view addSubview:gameContainer];
 }
 
 - (void) playClick {
