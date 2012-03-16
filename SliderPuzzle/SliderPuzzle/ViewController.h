@@ -19,6 +19,7 @@
 @property(strong, nonatomic) NSMutableSet *allTiles;
 @property(strong, nonatomic) GameTile *emptyTile;
 @property(strong, nonatomic) NSString *lastTouchCenter;
+@property(nonatomic) BOOL lastTouchWasDrag;
 @property(strong, nonatomic) GameTile *movedTile;
 @property(strong, nonatomic) NSArray *tilesFromTileToEmptyTile;
 @property(strong, nonatomic) ImageSlicer *imageSlicer;

@@ -33,8 +33,7 @@
 @end
 
 @implementation ViewController
-@synthesize soundToggleButton;
-@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer, audioPlayer, playSounds;
+@synthesize emptyTile, allTiles, lastTouchCenter, movedTile, tilesFromTileToEmptyTile, imageSlicer, audioPlayer, playSounds, soundToggleButton, lastTouchWasDrag;
 
 #pragma mark - View lifecycle
 
@@ -172,8 +171,15 @@
 
 - (void) makeMovesIfAnyExistForTile:(GameTile *)tile {
     if (tile.row == self.emptyTile.row || tile.column == self.emptyTile.column) {
-        NSLog(@"tapped: %@, empty: %@", tile, self.emptyTile);
-        [self animateTilesTowardsEmptyTileStartingAtTile:tile];
+        if (!self.lastTouchWasDrag || [tile hasTraveledOverHalfOfOwnSize]) {
+            NSLog(@"moved: %@, empty: %@, delta: %@", tile, self.emptyTile, NSStringFromCGPoint(tile.moveDelta));
+            [self animateTilesTowardsEmptyTileStartingAtTile:tile];
+        } else {
+            NSLog(@"Resetting tiles");
+            [self.tilesFromTileToEmptyTile enumerateObjectsUsingBlock:^(GameTile *t, NSUInteger idx, BOOL *stop) {
+                [self animateTile:t toRow:t.row andColumn:t.column];
+            }];
+        }
     }
 }
 
@@ -219,7 +225,7 @@
 }
 
 - (void) animateTile:(GameTile *)tile toRow:(NSInteger)row andColumn:(NSInteger)column {
-    NSLog(@"Animating tile %@ to %d,%d", tile, row, column);
+    NSLog(@"Animating tile %@ to row: %d, column: %d", tile, row, column);
     __block GameTile *animatedTile = tile;
     __block CGRect targetRect = [self rectForRow:row column:column];
     [UIView animateWithDuration:kAnimationSpeed
@@ -229,12 +235,13 @@
                          animatedTile.frame = targetRect;
                      }
                      completion:^(BOOL finished) {
-                         NSLog(@"Animation Finished");
+                         NSLog(@"Animation Finished at row: %d, column: %d", row, column);
                          animatedTile.row = row;
                          animatedTile.column = column;
+                         animatedTile.moveDelta = CGPointZero;
                          [self playClick];
                      }];
-    }
+}
 
 - (CGRect) rectForRow:(NSInteger)row column:(NSInteger)column {
     return CGRectMake((column * kTileSize) + gameBoardX, (row * kTileSize) + gameBoardY, kTileSize, kTileSize);
@@ -254,6 +261,7 @@
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.movedTile) {
+        self.lastTouchWasDrag = YES;
         UITouch *firstTouch = [self firstTouchThatTouchesTile:self.movedTile fromTouches:touches withEvent:event];
         if (firstTouch) {
             CGPoint touchCenter = [firstTouch locationInView:self.view];
@@ -261,22 +269,28 @@
             int xDelta = touchCenter.x - lastCenter.x;
             int yDelta = touchCenter.y - lastCenter.y;
             
-            __block CGPoint oldTileCenter;
-            __block CGPoint newCenter;
             [self.tilesFromTileToEmptyTile enumerateObjectsUsingBlock:^(GameTile *tile, NSUInteger idx, BOOL *stop) {
-                oldTileCenter = tile.center;
-                newCenter = CGPointMake(oldTileCenter.x, oldTileCenter.y);
+                CGPoint oldTileCenter = tile.center;
+                CGPoint newCenter = CGPointMake(oldTileCenter.x, oldTileCenter.y);
+                CGPoint currentDelta = tile.moveDelta;
+                int tileXDelta = currentDelta.x;
+                int tileYDelta = currentDelta.y;
+                
                 if (tile.row == self.emptyTile.row) {
                     newCenter.x = newCenter.x + xDelta;
+                    tileXDelta = tileXDelta + xDelta;
                 } else if (tile.column == self.emptyTile.column) {
                     newCenter.y = newCenter.y + yDelta;
+                    tileYDelta = tileYDelta + yDelta;
                 }
                 
                 // Lazy perhaps...
                 tile.center = newCenter;
+                tile.moveDelta = CGPointMake(tileXDelta, tileYDelta);
                 BOOL impossibleMove = !CGRectContainsRect(gameBoardBounds, tile.frame) || [self anotherVisibleTileCollidesWithTile:tile];
                 if (impossibleMove) {
                     tile.center = oldTileCenter;
+                    tile.moveDelta = currentDelta;
                 }
             }];
             
@@ -287,6 +301,7 @@
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     [self makeMovesIfAnyExistForTile:[self tileForTouches:touches withEvent:event]];
+    self.lastTouchWasDrag = NO;
     self.lastTouchCenter = nil;
     self.movedTile = nil;
     self.tilesFromTileToEmptyTile = nil;

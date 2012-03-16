@@ -14,7 +14,9 @@
 @property(nonatomic) NSInteger column;
 @property(nonatomic) BOOL isEmptyTile;
 @property(nonatomic) CGImageRef tileImage;
+@property(nonatomic) CGPoint moveDelta;
 
 - (NSInteger) distanceInRowOrColumnFromTileToAnotherTile:(GameTile *)anotherTile;
+- (BOOL) hasTraveledOverHalfOfOwnSize;
 
 @end
