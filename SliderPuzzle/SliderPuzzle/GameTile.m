@@ -14,6 +14,7 @@
 - (void) setIsEmptyTile:(BOOL)empty {
     isEmptyTile = empty;
     self.backgroundColor = [UIColor clearColor];
+    [self setNeedsDisplay];
 }
 
 - (void) drawRect:(CGRect)rect {

@@ -54,7 +54,10 @@
 
     // Using this we could also load an image from the photo library with some simple changes.
     UIImage *img = [UIImage imageNamed:@"globe.jpg"];
-    self.imageSlicer = [[ImageSlicer alloc] initWithUnslicedImage:[img CGImage] rows:4 columns:4 tileSize:CGSizeMake(kTileSize, kTileSize)];
+    self.imageSlicer = [[ImageSlicer alloc] initWithUnslicedImage:[img CGImage]
+                                                             rows:4
+                                                          columns:4
+                                                         tileSize:CGSizeMake(kTileSize, kTileSize)];
 
     self.allTiles = [NSMutableSet setWithCapacity:16];
     [self createGameGrid];
@@ -104,7 +107,6 @@
     if (tile.row == emptyRow && tile.column == emptyColumn) {
         self.emptyTile = tile;
         tile.isEmptyTile = YES;
-        [tile setNeedsDisplay];
     }
     [self.view addSubview:tile];
 }
